@@ -6,4 +6,5 @@
 #include <Adafruit_GFX.h>
 #include <RTClib.h>
 #include <WString.h>
+#include <EEPROM.h>
 // #include <DS3231.h>
