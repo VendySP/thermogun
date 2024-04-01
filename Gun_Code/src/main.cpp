@@ -1,5 +1,4 @@
 #include <main.h>
-
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define BUZZER 2
@@ -28,6 +27,8 @@ bool lastButton4State = HIGH;
 char mlxValueStr[10];
 float mlxValueAll;
 int counter = 0;
+float mlxValueToSend;
+char buffer[10];
 
 int eepromAddress = 0;
 int mode = 1;
@@ -159,14 +160,21 @@ void switchMode() {
   }
 }
 
+// void requestEvent() {
+//   dtostrf(mlxValueToSend, 4, 2, buffer);
+//   Wire.write(buffer);
+// }
+
 void sending(){
   for (int addr = 0; addr < eepromAddress; addr += sizeof(float)) {
-      float mlxValueToSend;
       EEPROM.get(addr, mlxValueToSend);  // Read mlxValueAll from EEPROM
       // Send data to slave
-      Wire.beginTransmission(SLAVE_ADDRESS);
-      Wire.write((uint8_t*)&mlxValueToSend, sizeof(mlxValueToSend)); // Sending mlxValueToSend to slave
+      dtostrf(mlxValueToSend, 4, 2, buffer);
+      Wire.beginTransmission(10);
+      Wire.write(buffer);
       Wire.endTransmission();
+      Serial.println(buffer);
+      delay(100);
     }
     Serial.println("Data dikirim ke slave.");
 
