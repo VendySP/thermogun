@@ -7,7 +7,6 @@
 #define BUTTON_3 8       // Pin connected to the push button
 #define BUTTON_4 9
 #define LED 13
-#define SLAVE_ADDRESS 0x40
 #define MAX_DATA_COUNT 30
 
 
@@ -29,16 +28,61 @@ float mlxValueAll;
 int counter = 0;
 float mlxValueToSend;
 char buffer[10];
+char mlx1 [150];
 
 int eepromAddress = 0;
 int mode = 1;
 
+
+void requestDock() {
+    for (int addr = 0; addr < eepromAddress; addr += sizeof(float)) {
+      EEPROM.get(addr, mlxValueToSend);  // Read mlxValueAll from EEPROM
+      // Send data to slave
+      dtostrf(mlxValueToSend, 4, 2, buffer);
+
+      Wire.write(buffer);
+      Serial.println(buffer);
+    }
+    Serial.println("Data dikirim");
+
+    // Reset EEPROM to address 0
+    eepromAddress = 0;
+    counter = 0; 
+    Serial.println("EEPROM direset.");
+
+    // count(counter);
+
+    // display.clearDisplay();
+
+    // display.setTextSize(2); // Change text size to 2
+    // display.setTextColor(SSD1306_WHITE);
+    
+    // // Teks yang akan ditampilkan
+    // String reset = "Senpai!";
+    
+    // // Calculate the width and height of the text
+    // int16_t textWidth = reset.length() * 12; // Assuming a 12-pixel width per character in text size 2
+    // int16_t textHeight = 16; // Assuming a height of 16 pixels for text size 2
+    
+    // // Calculate the position to center the text horizontally and vertically
+    // int16_t x = (display.width() - textWidth) / 2;
+    // int16_t y = (display.height() - textHeight) / 2;
+    
+    // // Set the cursor position and print the text
+    // display.setCursor(x, y);
+    // display.print(reset); 
+    
+    // // Display the content
+    // display.display();
+}
+
 void setup() {
   Serial.begin(9600);
-  Wire.begin();
+  Wire.begin(10);
   mlx.begin();
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // Initialize OLED display
-  EEPROM.begin();       
+  EEPROM.begin();
+  Wire.onRequest(requestDock);  
 
   pinMode(BUZZER, OUTPUT);
   pinMode(BUTTON_1, INPUT_PULLUP);
@@ -160,21 +204,13 @@ void switchMode() {
   }
 }
 
-// void requestEvent() {
-//   dtostrf(mlxValueToSend, 4, 2, buffer);
-//   Wire.write(buffer);
-// }
+
 
 void sending(){
   for (int addr = 0; addr < eepromAddress; addr += sizeof(float)) {
       EEPROM.get(addr, mlxValueToSend);  // Read mlxValueAll from EEPROM
       // Send data to slave
-      dtostrf(mlxValueToSend, 4, 2, buffer);
-      Wire.beginTransmission(10);
-      Wire.write(buffer);
-      Wire.endTransmission();
-      Serial.println(buffer);
-      delay(100);
+
     }
     Serial.println("Data dikirim ke slave.");
 
@@ -238,9 +274,6 @@ void loop() {
 
   if (button3State == LOW && lastButton3State == HIGH) { 
     lastButton3State = button3State;
-    sending();
-    delay(500);
-    
   }else {
     lastButton3State = button3State; // Update lastButton1State
   }
@@ -252,6 +285,5 @@ void loop() {
   }else {
     lastButton4State = button4State; // Update lastButton1State
   }
-
 
 }
