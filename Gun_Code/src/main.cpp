@@ -28,7 +28,10 @@ float mlxValueAll;
 int counter = 0;
 float mlxValueToSend;
 char buffer[10];
+<<<<<<< HEAD
 char mlx1 [150];
+=======
+>>>>>>> 1dd5ea168cef27b54a4d04a012945a5d13484dbd
 
 int eepromAddress = 0;
 int mode = 1;
@@ -204,13 +207,24 @@ void switchMode() {
   }
 }
 
+<<<<<<< HEAD
 
+=======
+void requestEvent() {
+  dtostrf(mlxValueToSend, 4, 2, buffer);
+  Wire.write(buffer);
+}
+>>>>>>> 1dd5ea168cef27b54a4d04a012945a5d13484dbd
 
 void sending(){
   for (int addr = 0; addr < eepromAddress; addr += sizeof(float)) {
       EEPROM.get(addr, mlxValueToSend);  // Read mlxValueAll from EEPROM
       // Send data to slave
+<<<<<<< HEAD
 
+=======
+      Wire.onRequest(requestEvent);
+>>>>>>> 1dd5ea168cef27b54a4d04a012945a5d13484dbd
     }
     Serial.println("Data dikirim ke slave.");
 
@@ -268,7 +282,8 @@ void loop() {
     lastButton2State = button2State;
     printEEPROM();
     delay(1000);
-  }else {
+  }else {s
+  
     lastButton2State = button2State; // Update lastButton1State
   }
 
