@@ -22,20 +22,48 @@ bool lastButton1State = HIGH; // Last state of button 1
 bool lastButton2State = HIGH;
 bool lastButton3State = HIGH;
 bool lastButton4State = HIGH;
+bool dock = false;
+
 
 char mlxValueStr[10];
 float mlxValueAll;
 int counter = 0;
 float mlxValueToSend;
 char buffer[10];
-<<<<<<< HEAD
 char mlx1 [150];
-=======
->>>>>>> 1dd5ea168cef27b54a4d04a012945a5d13484dbd
+
+const int noteDuration = 100;
 
 int eepromAddress = 0;
 int mode = 1;
 
+// void playMelody() {
+//   // Sequence of notes (you can define your own melody)
+//   int melody[] = {262, 294, 330, 349, 392, 440, 494, 523};
+//   int noteCount = sizeof(melody) / sizeof(melody[0]);
+
+//   // Corresponding note durations (in milliseconds)
+//   int noteDurations[] = {4, 4, 4, 4, 4, 4, 4, 4};
+
+//   // Iterate over the notes
+//   for (int i = 0; i < noteCount; i++) {
+//     // Calculate the duration of the note in milliseconds
+//     int duration = 100 / noteDurations[i];
+
+//     // Play the note
+//     tone(BUZZER, melody[i], duration);
+    
+//     // Pause between notes
+//     delay(duration * 1.3);
+//   }
+//   noTone(BUZZER); // Stop the buzzer after playing the melody
+// }
+
+void buzzerZ() {
+    digitalWrite(BUZZER, HIGH);
+    delay(5000);
+    digitalWrite(BUZZER, LOW);
+}
 
 void requestDock() {
     for (int addr = 0; addr < eepromAddress; addr += sizeof(float)) {
@@ -52,31 +80,8 @@ void requestDock() {
     eepromAddress = 0;
     counter = 0; 
     Serial.println("EEPROM direset.");
-
-    // count(counter);
-
-    // display.clearDisplay();
-
-    // display.setTextSize(2); // Change text size to 2
-    // display.setTextColor(SSD1306_WHITE);
+    dock = true;
     
-    // // Teks yang akan ditampilkan
-    // String reset = "Senpai!";
-    
-    // // Calculate the width and height of the text
-    // int16_t textWidth = reset.length() * 12; // Assuming a 12-pixel width per character in text size 2
-    // int16_t textHeight = 16; // Assuming a height of 16 pixels for text size 2
-    
-    // // Calculate the position to center the text horizontally and vertically
-    // int16_t x = (display.width() - textWidth) / 2;
-    // int16_t y = (display.height() - textHeight) / 2;
-    
-    // // Set the cursor position and print the text
-    // display.setCursor(x, y);
-    // display.print(reset); 
-    
-    // // Display the content
-    // display.display();
 }
 
 void setup() {
@@ -85,7 +90,7 @@ void setup() {
   mlx.begin();
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // Initialize OLED display
   EEPROM.begin();
-  Wire.onRequest(requestDock);  
+  Wire.onRequest(requestDock); 
 
   pinMode(BUZZER, OUTPUT);
   pinMode(BUTTON_1, INPUT_PULLUP);
@@ -155,9 +160,9 @@ void scanOnce() {
   int16_t x = (display.width() - textWidth) / 2;
   int16_t y = (display.height() - textHeight) / 2;
 
+
   display.setCursor(x, y);
   display.print(tempCelcius);
-
 
   count(counter);
 
@@ -173,6 +178,7 @@ void scanOnce() {
   Serial.println(emissivityValue);
 
   display.display();
+
 
 }
 
@@ -207,64 +213,28 @@ void switchMode() {
   }
 }
 
-<<<<<<< HEAD
 
-=======
-void requestEvent() {
-  dtostrf(mlxValueToSend, 4, 2, buffer);
-  Wire.write(buffer);
-}
->>>>>>> 1dd5ea168cef27b54a4d04a012945a5d13484dbd
-
-void sending(){
-  for (int addr = 0; addr < eepromAddress; addr += sizeof(float)) {
-      EEPROM.get(addr, mlxValueToSend);  // Read mlxValueAll from EEPROM
-      // Send data to slave
-<<<<<<< HEAD
-
-=======
-      Wire.onRequest(requestEvent);
->>>>>>> 1dd5ea168cef27b54a4d04a012945a5d13484dbd
-    }
-    Serial.println("Data dikirim ke slave.");
-
-    // Reset EEPROM to address 0
-    eepromAddress = 0;
-    counter = 0; 
-    Serial.println("EEPROM direset.");
-  
-    count(counter);
-
-  display.clearDisplay();
-
-  display.setTextSize(2); // Change text size to 2
-  display.setTextColor(SSD1306_WHITE);
-  
-  // Teks yang akan ditampilkan
-  String reset = "Senpai!";
-  
-  // Calculate the width and height of the text
-  int16_t textWidth = reset.length() * 12; // Assuming a 12-pixel width per character in text size 2
-  int16_t textHeight = 16; // Assuming a height of 16 pixels for text size 2
-  
-  // Calculate the position to center the text horizontally and vertically
-  int16_t x = (display.width() - textWidth) / 2;
-  int16_t y = (display.height() - textHeight) / 2;
-  
-  // Set the cursor position and print the text
-  display.setCursor(x, y);
-  display.print(reset); 
-  
-  // Display the content
-  display.display();
-} 
-
+// void afterSend(){
+//   display.clearDisplay(); // Bersihkan tampilan
+//   display.setTextSize(2); // Atur ukuran teks
+//   display.setTextColor(SSD1306_WHITE); // Pilih warna teks
+//   display.setCursor((SCREEN_WIDTH - (6 * 7 * 2)) / 2, (SCREEN_HEIGHT - 16) / 2); // Posisi tengah
+//   display.println("Senpai!"); // Tampilkan tulisan
+//   display.display(); // Tampilkan tampilan
+//   Serial.println("After Send Executed");
+// }
 
 void loop() {
   bool button1State = digitalRead(BUTTON_1);
   bool button2State = digitalRead(BUTTON_2);
   bool button3State = digitalRead(BUTTON_3);
   bool button4State = digitalRead(BUTTON_4);
+
+   if(dock) {
+        buzzerZ();
+        Serial.println("After Send Executed");
+        dock = false;
+    }
 
   if (button1State == LOW && lastButton1State == HIGH) { // Button 1 pressed
     lastButton1State = button1State; // Update lastButton1State
@@ -282,8 +252,7 @@ void loop() {
     lastButton2State = button2State;
     printEEPROM();
     delay(1000);
-  }else {s
-  
+  }else {
     lastButton2State = button2State; // Update lastButton1State
   }
 
@@ -301,4 +270,4 @@ void loop() {
     lastButton4State = button4State; // Update lastButton1State
   }
 
-}
+  }
